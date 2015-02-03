@@ -38,7 +38,7 @@
  * Defaults to the render range having one sceenful both leading and trailing and the preload range having two
  * screenfuls in both directions.
  */
-- (ASRangeTuningParameters)tuningParametersForRange:(ASLayoutRange)range;
+- (ASRangeTuningParameters)tuningParametersForRangeType:(ASLayoutRangeType)rangeType;
 
 /**
  * Set the tuning parameters for a range.
@@ -46,7 +46,7 @@
  * @param tuningParameters The tuning parameters to store for a range.
  * @param range The range to set the tuning parameters for.
  */
-- (void)setTuningParameters:(ASRangeTuningParameters)tuningParameters forRange:(ASLayoutRange)range;
+- (void)setTuningParameters:(ASRangeTuningParameters)tuningParameters forRangeType:(ASLayoutRangeType)rangeType;
 
 /**
  * Reload everything from scratch, destroying the working range and all cached nodes.

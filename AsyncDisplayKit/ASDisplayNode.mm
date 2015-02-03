@@ -90,7 +90,7 @@ void ASDisplayNodePerformBlockOnMainThread(void (^block)())
   // Subclasses should never override these
   ASDisplayNodeAssert(!ASDisplayNodeSubclassOverridesSelector(self, @selector(calculatedSize)), @"Subclass %@ must not override calculatedSize method", NSStringFromClass(self));
   ASDisplayNodeAssert(!ASDisplayNodeSubclassOverridesSelector(self, @selector(measure:)), @"Subclass %@ must not override measure method", NSStringFromClass(self));
-  ASDisplayNodeAssert(!ASDisplayNodeSubclassOverridesSelector(self, @selector(recursivelyReclaimMemory)), @"Subclass %@ must not override recursivelyReclaimMemory method", NSStringFromClass(self));
+  ASDisplayNodeAssert(!ASDisplayNodeSubclassOverridesSelector(self, @selector(recursivelyClearRendering)), @"Subclass %@ must not override recursivelyClearRendering method", NSStringFromClass(self));
 }
 
 + (BOOL)layerBackedNodesEnabled
@@ -1330,18 +1330,36 @@ static NSInteger incrementIfFound(NSInteger i) {
   [self __exitedHierarchy];
 }
 
-- (void)reclaimMemory
+- (void)clearRendering
 {
   self.layer.contents = nil;
   _placeholderLayer.contents = nil;
 }
 
-- (void)recursivelyReclaimMemory
+- (void)recursivelyClearRendering
 {
   for (ASDisplayNode *subnode in self.subnodes) {
-    [subnode recursivelyReclaimMemory];
+    [subnode recursivelyClearRendering];
   }
-  [self reclaimMemory];
+  [self clearRendering];
+}
+
+- (void)fetchRemoteData
+{
+  // subclass override
+}
+
+- (void)clearRemoteData
+{
+  // subclass override
+}
+
+- (void)recursivelyClearRemoteData
+{
+  for (ASDisplayNode *subnode in self.subnodes) {
+    [subnode recursivelyClearRemoteData];
+  }
+  [self clearRemoteData];
 }
 
 - (void)layout
@@ -1461,6 +1479,7 @@ static NSInteger incrementIfFound(NSInteger i) {
     return CGRectContainsPoint(UIEdgeInsetsInsetRect(self.bounds, slop), point);
   }
 }
+
 
 #pragma mark - Pending View State
 - (_ASPendingState *)pendingViewState
@@ -1724,6 +1743,20 @@ static void _recursivelySetDisplaySuspended(ASDisplayNode *node, CALayer *layer,
     [subtree appendString:[n _recursiveDescriptionHelperWithIndent:[indent stringByAppendingString:@" | "]]];
   }
   return subtree;
+}
+
+@end
+
+@implementation ASDisplayNode (Deprecated)
+
+- (void)reclaimMemory
+{
+  [self clearRendering];
+}
+
+- (void)recursivelyReclaimMemory
+{
+  [self recursivelyClearRendering];
 }
 
 @end
